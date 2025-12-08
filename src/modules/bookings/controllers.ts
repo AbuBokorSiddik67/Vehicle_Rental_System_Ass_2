@@ -1,9 +1,27 @@
 import { Request, Response } from "express";
-import { userServices } from "./services";
+import { bookingServices } from "./services";
+
+const createBooking = async (req: Request, res: Response) => {
+  try {
+    const result = await bookingServices.createBooking(req.body);
+
+    res.status(201).json({
+      success: true,
+      massage: "Booking created successfully.",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      massage: "Booking cannot created.",
+      errors: "Internal server error",
+    });
+  }
+};
 
 const getUser = async (req: Request, res: Response) => {
   try {
-    const result = await userServices.getUser();
+    const result = await bookingServices.getUser();
 
     res.status(200).json({
       success: true,
@@ -22,7 +40,7 @@ const getUser = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   const { name, email, phone, role } = req.body;
   try {
-    const result = await userServices.updateUser(
+    const result = await bookingServices.updateUser(
       name,
       email,
       phone,
@@ -50,32 +68,8 @@ const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-const deleteUser = async (req: Request, res: Response) => {
-  try {
-    const result = await userServices.deleteUser(req.params.userId!);
-
-    if (result.rowCount === 0) {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "User deleted successfully",
-      });
-    }
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: "User cannot deleted",
-      errors: "Internal server error",
-    });
-  }
-};
-
-export const userController = {
+export const bookingController = {
+  createBooking,
   getUser,
   updateUser,
-  deleteUser,
 };

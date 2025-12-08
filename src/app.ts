@@ -2,6 +2,8 @@ import express, { Request, Response } from "express";
 import initDB from "./config/db";
 import { userRouter } from "./modules/users/routes";
 import { authRouter } from "./modules/auth/routes";
+import { vehiclesRouter } from "./modules/vehicles/routes";
+import { bookingRouter } from "./modules/bookings/routes";
 const app = express();
 app.use(express.json());
 
@@ -15,6 +17,10 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", authRouter);
 //* User Data *//
 app.use("/api/v1/users", userRouter);
+//* Vehicls Data
+app.use("/api/v1/vehicles", vehiclesRouter);
+//* Booking Data
+app.use("/api/v1/bookings", bookingRouter);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({
