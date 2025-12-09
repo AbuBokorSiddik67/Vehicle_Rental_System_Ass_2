@@ -3,11 +3,11 @@
 Project Name: Vehicle Rental System(backend project)
 
 Features & Technology Stack:
-Node.js + TypeScript
-Express.js (web framework)
-PostgreSQL (database)
-bcrypt (password hashing)
-jsonwebtoken (JWT authentication)
+Node.js + TypeScript, 
+Express.js (web framework), 
+PostgreSQL (database), 
+bcrypt (password hashing), 
+jsonwebtoken (JWT authentication),
 
 Setup & Usage Instructions:
 git clone https://vehicle-rental-system-ass-2.vercel.app/
@@ -20,5 +20,6 @@ CUSTOMER='customer'
 > > > run npm i then run npm run build
 
 GitHub Repo: https://github.com/AbuBokorSiddik67/Vehicle_Rental_System_Ass_2
+
 
 Live Deployment: https://vehicle-rental-system-ass-2.vercel.app/
