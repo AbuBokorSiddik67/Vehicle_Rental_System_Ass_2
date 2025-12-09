@@ -54,22 +54,13 @@ const deleteUser = async (req: Request, res: Response) => {
   try {
     const result = await userServices.deleteUser(req.params.userId!);
 
-    if (result.rowCount === 0) {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "User deleted successfully",
-      });
-    }
+    res.status(200).json(result);
+    
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: "User cannot deleted",
-      errors: "Internal server error",
+      message: err.massage,
+      errors: err.error,
     });
   }
 };

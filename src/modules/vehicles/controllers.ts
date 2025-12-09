@@ -44,7 +44,7 @@ const singleVehicle = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: "Vehicle data loaded successfully",
+      message: "Vehicle retrieved successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
@@ -97,22 +97,12 @@ const updateVehicle = async (req: Request, res: Response) => {
 const deleteVehicle = async (req: Request, res: Response) => {
   try {
     const result = await vehicleServices.deleteVehicle(req.params?.vehicleId!);
-    if (result.rowCount === 0) {
-      res.status(404).json({
-        success: false,
-        message: "Vehicle not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "Vehicle deleted successfully",
-      });
-    }
+    res.status(200).json(result);
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: "Vehicle cannot deleted",
-      errors: "Internal server error",
+      message: err.massage,
+      errors: err.error,
     });
   }
 };

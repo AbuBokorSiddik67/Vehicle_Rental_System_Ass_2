@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { bookingServices } from "./services";
+import { JwtPayload } from "jsonwebtoken";
 
 const createBooking = async (req: Request, res: Response) => {
   try {
@@ -19,46 +20,36 @@ const createBooking = async (req: Request, res: Response) => {
   }
 };
 
-const getUser = async (req: Request, res: Response) => {
+const getBooking = async (req: Request, res: Response) => {
   try {
-    const result = await bookingServices.getUser();
+    const result = await bookingServices.getBooking(req.user as JwtPayload);
 
     res.status(200).json({
       success: true,
-      message: "user loaded successfully",
-      data: result.rows,
+      message: "Booking loaded successfully",
+      data: result,
     });
   } catch (error: any) {
     res.status(403).json({
       success: false,
-      massage: "Forbidden Access",
+      massage: "Booking cannot loaded successfully.",
       errors: "Please check you info and try again",
     });
   }
 };
 
-const updateUser = async (req: Request, res: Response) => {
-  const { name, email, phone, role } = req.body;
+const updateBooking = async (req: Request, res: Response) => {
+  const { status } = req.body;
+  const requsetedId = req.params.bookingId as string;
+  const { role, id } = req.user as JwtPayload;
   try {
-    const result = await bookingServices.updateUser(
-      name,
-      email,
-      phone,
+    const result = await bookingServices.updateBooking(
+      requsetedId,
+      status,
       role,
-      req.params?.userId!
+      id
     );
-    if (result.rows.length === 0) {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "User updated successfully",
-        data: result.rows[0],
-      });
-    }
+    res.status(200).json(result);
   } catch (error: any) {
     res.status(500).json({
       success: false,
@@ -70,6 +61,6 @@ const updateUser = async (req: Request, res: Response) => {
 
 export const bookingController = {
   createBooking,
-  getUser,
-  updateUser,
+  getBooking,
+  updateBooking,
 };

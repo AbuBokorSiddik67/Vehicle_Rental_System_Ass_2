@@ -20,8 +20,45 @@ const updateUser = async (
 };
 
 const deleteUser = async (id: string) => {
-  const result = await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
-  return result;
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const activeBookingCheck = await client.query(
+      `SELECT id 
+       FROM bookings 
+       WHERE customer_id = $1 AND status = 'active'`,
+      [id]
+    );
+
+    if (activeBookingCheck.rowCount! > 0) {
+      await client.query("ROLLBACK");
+
+      throw new Error("Cannot delete user: Active bookings exist.");
+    }
+
+    const deleteResult = await client.query(
+      `DELETE FROM users WHERE id = $1 RETURNING id`,
+      [id]
+    );
+
+    if (deleteResult.rowCount === 0) {
+      await client.query("ROLLBACK");
+      throw new Error("User not found.");
+    }
+
+    await client.query("COMMIT");
+    return {
+      id: deleteResult.rows[0].id,
+      message: "User deleted successfully.",
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 export const userServices = {

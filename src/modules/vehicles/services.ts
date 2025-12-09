@@ -56,8 +56,49 @@ const updateVehicle = async (
 };
 
 const deleteVehicle = async (id: string) => {
-  const result = await pool.query(`DELETE FROM vehicles WHERE id = $1`, [id]);
-  return result;
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const activeBookingCheck = await client.query(
+      `SELECT id 
+       FROM bookings 
+       WHERE vehicle_id = $1 AND status = 'active'`,
+      [id]
+    );
+
+    if (activeBookingCheck.rowCount! > 0) {
+      await client.query("ROLLBACK");
+
+      throw new Error(
+        "Cannot delete vehicle: Active bookings exist for this vehicle."
+      );
+    }
+
+    const deleteResult = await client.query(
+      `DELETE FROM vehicles WHERE id = $1 RETURNING id, vehicle_name`,
+      [id]
+    );
+
+    if (deleteResult.rowCount === 0) {
+      await client.query("ROLLBACK");
+      throw new Error("Vehicle not found.");
+    }
+
+    await client.query("COMMIT");
+
+    return {
+      id: deleteResult.rows[0].id,
+      vehicle_name: deleteResult.rows[0].vehicle_name,
+      message: "Vehicle deleted successfully.",
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 export const vehicleServices = {
